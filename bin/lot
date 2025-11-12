@@ -147,7 +147,7 @@ EOF
 
     echo ""
     echo -e "${CYAN}╔════════════════════════════════════════════════╗${NC}"
-    echo -e "${CYAN}║${NC}  ${GREEN}LOT Terminal${NC} - Self-care hardware platform ${CYAN}║${NC}"
+    echo -e "${CYAN}║${NC}  ${GREEN}LOT Terminal${NC} - Platform for self-care hardware ${CYAN}║${NC}"
     echo -e "${CYAN}╚════════════════════════════════════════════════╝${NC}"
     echo ""
     echo -e "${YELLOW}Get started:${NC}"
@@ -162,7 +162,7 @@ show_help() {
     cat << 'EOF'
 ╔════════════════════════════════════════════════════════════════╗
 ║                      LOT Terminal v1.0.0                       ║
-║            Open source self-care hardware platform             ║
+║             Platform for self-care hardware                    ║
 ╚════════════════════════════════════════════════════════════════╝
 
 USAGE:
@@ -573,7 +573,7 @@ open_hardware() {
 show_version() {
     echo -e "${CYAN}╔════════════════════════════════════════════════╗${NC}"
     echo -e "${CYAN}║${NC}  ${GREEN}LOT Terminal${NC} v${VERSION}                       ${CYAN}║${NC}"
-    echo -e "${CYAN}║${NC}  Open source self-care hardware platform     ${CYAN}║${NC}"
+    echo -e "${CYAN}║${NC}  Platform for self-care hardware             ${CYAN}║${NC}"
     echo -e "${CYAN}╚════════════════════════════════════════════════╝${NC}"
     echo ""
     echo "Open Source - MIT License"

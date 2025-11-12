@@ -3,7 +3,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Open Source](https://img.shields.io/badge/Open%20Source-Yes-green.svg)](https://github.com/vadikmarmeladov/lot-terminal)
 
-**Open source self-care hardware platform.**
+**LOT Terminal – an open-source platform for self-care hardware**
 
 > 🔓 **Fully Open Source** | 🛠️ **Developer-First** | 🔌 **Hardware-Ready** | 📝 **Zero Dependencies**
 

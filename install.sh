@@ -45,7 +45,7 @@ cat << 'EOF'
 | |__| |_| | | |
 |_____\___/  |_|
 
-Open source self-care hardware platform
+LOT Terminal – an open-source platform for self-care hardware
 EOF
 echo -e "${NC}"
 

@@ -4,7 +4,7 @@
 
 ## What is LOT Terminal?
 
-**Open source self-care hardware platform.**
+**LOT Terminal – an open-source platform for self-care hardware**
 
 LOT Terminal helps you:
 - Manage your personal settings
