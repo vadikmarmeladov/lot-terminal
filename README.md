@@ -22,37 +22,29 @@ This is an **open-source developer playground and backend system**. It does **NO
 
 ### Installation
 
-**Option 1: Homebrew (Recommended for macOS/Linux)**
-
-```bash
-# Add the tap
-brew tap vadikmarmeladov/lot
-
-# Install
-brew install lot
-
-# Start using
-lot init
-```
-
-**Option 2: Quick Install Script**
+**One-line install (Recommended):**
 
 ```bash
 curl -sSL https://raw.githubusercontent.com/vadikmarmeladov/lot-terminal/main/install.sh | bash
 ```
 
-**Option 3: Manual Installation**
+**Or clone and install:**
 
 ```bash
-# Clone the repository
 git clone https://github.com/vadikmarmeladov/lot-terminal.git
 cd lot-terminal
-
-# Run installer
 bash install.sh
 ```
 
-> **Note:** All installation methods provide the same open-source software. Homebrew is simply a convenient package manager - you're still using and can contribute to the open-source project!
+**Homebrew (Coming Soon):**
+
+```bash
+# Will be available soon
+brew tap vadikmarmeladov/lot
+brew install lot
+```
+
+> **Note:** LOT Terminal is fully open source. You can view, modify, and contribute to the code regardless of how you install it.
 
 ### First Run
 
