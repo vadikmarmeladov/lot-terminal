@@ -51,12 +51,6 @@ echo -e "${NC}"
 
 print_status "Starting LOT installation..."
 
-# Debug information
-print_status "Debug Information:"
-echo "Current user: $(whoami)"
-echo "Install directory: $INSTALL_DIR"
-echo "Current directory: $(pwd)"
-
 # Check requirements
 print_status "Checking system requirements..."
 
