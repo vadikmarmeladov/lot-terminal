@@ -7,6 +7,8 @@
 
 > 🔓 **Fully Open Source** | 🛠️ **Developer-First** | 🔌 **Hardware-Ready** | 📝 **Zero Dependencies**
 
+**👋 New to terminals?** Start here: **[Getting Started Guide](GETTING_STARTED.md)** - A beginner-friendly introduction!
+
 ## ⚠️ Important Notice
 
 This is an **open-source developer playground and backend system**. It does **NOT** provide access to lot-systems.com or any commercial services. This tool is designed for:
@@ -311,6 +313,7 @@ See [HARDWARE.md](HARDWARE.md) for build instructions.
 
 ## 📖 Documentation
 
+- **[GETTING_STARTED.md](GETTING_STARTED.md)** - Beginner-friendly guide for first-time users
 - [CHANGELOG.md](CHANGELOG.md) - Version history
 - [CONTRIBUTING.md](CONTRIBUTING.md) - Contribution guidelines
 - [HARDWARE.md](HARDWARE.md) - Hardware development guide
