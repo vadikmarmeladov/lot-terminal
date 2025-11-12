@@ -1,0 +1,87 @@
+# LOT Terminal - Development .gitignore
+
+# LOT Terminal user data (do not commit personal settings)
+.lot/
+*.lot
+
+# Logs
+*.log
+logs/
+
+# Environment files (may contain sensitive data)
+.env
+.env.local
+.env.*.local
+
+# Editor files
+*~
+*.swp
+*.swo
+.*.swp
+.*.swo
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+
+# Backup files
+*.bak
+*.backup
+*.tmp
+*.temp
+
+# Archives
+*.tar
+*.tar.gz
+*.tgz
+*.zip
+*.rar
+*.7z
+
+# Test artifacts
+test-output/
+test-results/
+coverage/
+
+# Build artifacts (for future use)
+dist/
+build/
+*.o
+*.so
+*.dylib
+
+# Hardware project files (large binaries)
+*.hex
+*.bin
+*.elf
+*.out
+
+# Documentation builds
+docs/_build/
+site/
+
+# Package manager
+node_modules/
+npm-debug.log
+
+# Credentials and secrets
+credentials.json
+secrets.txt
+*.key
+*.pem
+*.cert
+
+# Personal notes
+TODO.txt
+NOTES.md
+.scratch/

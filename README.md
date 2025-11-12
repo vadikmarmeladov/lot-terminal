@@ -3,7 +3,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Open Source](https://img.shields.io/badge/Open%20Source-Yes-green.svg)](https://github.com/vadikmarmeladov/lot-terminal)
 
-**LOT Terminal** is an open-source developer playground and backend system for hardware development, prototyping, and experimentation.
+**Open source self-care hardware platform.**
 
 > 🔓 **Fully Open Source** | 🛠️ **Developer-First** | 🔌 **Hardware-Ready** | 📝 **Zero Dependencies**
 

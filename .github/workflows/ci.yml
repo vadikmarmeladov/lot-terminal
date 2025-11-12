@@ -1,0 +1,102 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    name: Test on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Check bash syntax
+      run: bash -n bin/lot
+
+    - name: Check install script syntax
+      run: bash -n install.sh
+
+    - name: Make lot executable
+      run: chmod +x bin/lot
+
+    - name: Test lot version command
+      run: ./bin/lot version
+
+    - name: Test lot init command
+      run: ./bin/lot init
+
+    - name: Test lot status command
+      run: ./bin/lot status
+
+    - name: Test lot help command
+      run: ./bin/lot help
+
+    - name: Test lot doctor command
+      run: ./bin/lot doctor
+
+    - name: Test settings commands
+      run: |
+        ./bin/lot settings set TEST_KEY "test_value"
+        ./bin/lot settings get TEST_KEY
+        ./bin/lot settings list
+
+    - name: Test user commands
+      run: |
+        ./bin/lot user create testuser
+        ./bin/lot user list
+
+    - name: Test hardware commands
+      run: |
+        ./bin/lot hardware init test-project
+        ./bin/lot hardware list
+
+    - name: Test stats command
+      run: ./bin/lot stats
+
+    - name: Test logs command
+      run: ./bin/lot logs
+
+  shellcheck:
+    name: ShellCheck
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Run ShellCheck on bin/lot
+      uses: ludeeus/action-shellcheck@master
+      with:
+        scandir: 'bin'
+        severity: warning
+
+    - name: Run ShellCheck on install.sh
+      uses: ludeeus/action-shellcheck@master
+      with:
+        scandir: '.'
+        check_together: 'yes'
+        severity: warning
+
+  markdown-lint:
+    name: Markdown Lint
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Lint markdown files
+      uses: articulate/actions-markdownlint@v1
+      with:
+        config: .markdownlint.json
+        files: '*.md'
+        ignore: node_modules
+      continue-on-error: true

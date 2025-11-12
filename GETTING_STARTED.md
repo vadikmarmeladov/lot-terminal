@@ -4,7 +4,9 @@
 
 ## What is LOT Terminal?
 
-LOT Terminal is a simple tool that helps you:
+**Open source self-care hardware platform.**
+
+LOT Terminal helps you:
 - Manage your personal settings
 - Track your activities with logs
 - Organize hardware projects

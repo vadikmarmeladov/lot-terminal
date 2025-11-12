@@ -39,13 +39,13 @@ print_warning() {
 # Header
 echo -e "${CYAN}"
 cat << 'EOF'
- _     ___  _____ 
+ _     ___  _____
 | |   / _ \|_   _|
-| |  | | | | | |  
-| |__| |_| | | |  
-|_____\___/  |_|  
+| |  | | | | | |
+| |__| |_| | | |
+|_____\___/  |_|
 
-Selfcare Subscription Terminal Manager
+Open source self-care hardware platform
 EOF
 echo -e "${NC}"
 
