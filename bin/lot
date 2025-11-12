@@ -25,7 +25,8 @@ NC='\033[0m'
 
 # Logging functions
 log_info() {
-    local timestamp=$(date '+%Y-%m-%d %H:%M:%S')
+    local timestamp
+    timestamp=$(date '+%Y-%m-%d %H:%M:%S')
     echo -e "${CYAN}[INFO]${NC} $1"
     if [ -d "${LOT_LOGS_DIR}" ]; then
         echo "[$timestamp] INFO: $1" >> "${LOT_LOGS_DIR}/lot.log"
@@ -33,7 +34,8 @@ log_info() {
 }
 
 log_success() {
-    local timestamp=$(date '+%Y-%m-%d %H:%M:%S')
+    local timestamp
+    timestamp=$(date '+%Y-%m-%d %H:%M:%S')
     echo -e "${GREEN}[SUCCESS]${NC} $1"
     if [ -d "${LOT_LOGS_DIR}" ]; then
         echo "[$timestamp] SUCCESS: $1" >> "${LOT_LOGS_DIR}/lot.log"
@@ -41,7 +43,8 @@ log_success() {
 }
 
 log_error() {
-    local timestamp=$(date '+%Y-%m-%d %H:%M:%S')
+    local timestamp
+    timestamp=$(date '+%Y-%m-%d %H:%M:%S')
     echo -e "${RED}[ERROR]${NC} $1"
     if [ -d "${LOT_LOGS_DIR}" ]; then
         echo "[$timestamp] ERROR: $1" >> "${LOT_LOGS_DIR}/lot.log"
@@ -49,7 +52,8 @@ log_error() {
 }
 
 log_warning() {
-    local timestamp=$(date '+%Y-%m-%d %H:%M:%S')
+    local timestamp
+    timestamp=$(date '+%Y-%m-%d %H:%M:%S')
     echo -e "${YELLOW}[WARNING]${NC} $1"
     if [ -d "${LOT_LOGS_DIR}" ]; then
         echo "[$timestamp] WARNING: $1" >> "${LOT_LOGS_DIR}/lot.log"
@@ -92,9 +96,10 @@ save_setting() {
 get_setting() {
     local key="$1"
     local default="$2"
+    local value
 
     if [ -f "${LOT_SETTINGS}" ]; then
-        local value=$(grep "^${key}=" "${LOT_SETTINGS}" | cut -d'=' -f2-)
+        value=$(grep "^${key}=" "${LOT_SETTINGS}" | cut -d'=' -f2-)
         if [ -n "$value" ]; then
             echo "$value"
         else
@@ -305,10 +310,11 @@ list_users() {
     echo ""
 
     local count=0
+    local username created
     for user_file in "${LOT_USERS_DIR}"/*.env; do
         if [ -f "$user_file" ]; then
-            local username=$(basename "$user_file" .env)
-            local created=$(grep "USER_CREATED=" "$user_file" | cut -d'=' -f2)
+            username=$(basename "$user_file" .env)
+            created=$(grep "USER_CREATED=" "$user_file" | cut -d'=' -f2)
             echo -e "  ${GREEN}•${NC} ${YELLOW}$username${NC} (created: $created)"
             count=$((count + 1))
         fi
@@ -417,21 +423,25 @@ show_stats() {
     echo ""
 
     # User count
-    local user_count=$(ls -1 "${LOT_USERS_DIR}"/*.env 2>/dev/null | wc -l)
+    local user_count
+    user_count=$(ls -1 "${LOT_USERS_DIR}"/*.env 2>/dev/null | wc -l)
     echo -e "  ${YELLOW}Users:${NC} $user_count"
 
     # Hardware projects
-    local hw_count=$(ls -1d "${LOT_HARDWARE_DIR}"/*/ 2>/dev/null | wc -l)
+    local hw_count
+    hw_count=$(ls -1d "${LOT_HARDWARE_DIR}"/*/ 2>/dev/null | wc -l)
     echo -e "  ${YELLOW}Hardware Projects:${NC} $hw_count"
 
     # Log entries
     if [ -f "${LOT_LOGS_DIR}/lot.log" ]; then
-        local log_lines=$(wc -l < "${LOT_LOGS_DIR}/lot.log")
+        local log_lines
+        log_lines=$(wc -l < "${LOT_LOGS_DIR}/lot.log")
         echo -e "  ${YELLOW}Log Entries:${NC} $log_lines"
     fi
 
     # Disk usage
-    local disk_usage=$(du -sh "${LOT_HOME}" 2>/dev/null | cut -f1)
+    local disk_usage
+    disk_usage=$(du -sh "${LOT_HOME}" 2>/dev/null | cut -f1)
     echo -e "  ${YELLOW}Disk Usage:${NC} $disk_usage"
 
     echo ""
@@ -517,14 +527,15 @@ list_hardware() {
     echo ""
 
     local count=0
+    local project_name config_file created status
     for project_dir in "${LOT_HARDWARE_DIR}"/*/; do
         if [ -d "$project_dir" ]; then
-            local project_name=$(basename "$project_dir")
-            local config_file="${project_dir}/project.env"
+            project_name=$(basename "$project_dir")
+            config_file="${project_dir}/project.env"
 
             if [ -f "$config_file" ]; then
-                local created=$(grep "PROJECT_CREATED=" "$config_file" | cut -d'=' -f2)
-                local status=$(grep "PROJECT_STATUS=" "$config_file" | cut -d'=' -f2)
+                created=$(grep "PROJECT_CREATED=" "$config_file" | cut -d'=' -f2)
+                status=$(grep "PROJECT_STATUS=" "$config_file" | cut -d'=' -f2)
                 echo -e "  ${GREEN}•${NC} ${YELLOW}$project_name${NC} [$status] (created: $created)"
             else
                 echo -e "  ${GREEN}•${NC} ${YELLOW}$project_name${NC}"
@@ -613,7 +624,8 @@ show_status() {
     fi
 
     # Check dev mode
-    local dev_mode=$(get_setting "LOT_DEV_MODE" "false")
+    local dev_mode
+    dev_mode=$(get_setting "LOT_DEV_MODE" "false")
     if [ "$dev_mode" = "true" ]; then
         echo -e "  ${GREEN}✓${NC} Developer mode: ${GREEN}ENABLED${NC}"
     else
@@ -654,7 +666,8 @@ run_doctor() {
     fi
 
     # Check disk space
-    local available_space=$(df -h "${LOT_HOME}" | awk 'NR==2 {print $4}')
+    local available_space
+    available_space=$(df -h "${LOT_HOME}" | awk 'NR==2 {print $4}')
     echo -e "  ${GREEN}✓${NC} Available disk space: $available_space"
 
     echo ""
@@ -670,7 +683,8 @@ clean_system() {
     log_info "Cleaning temporary files..."
 
     # Clean old logs (older than retention period)
-    local retention_days=$(get_setting "LOT_LOG_RETENTION_DAYS" "30")
+    local retention_days
+    retention_days=$(get_setting "LOT_LOG_RETENTION_DAYS" "30")
     find "${LOT_LOGS_DIR}" -type f -name "*.log.*" -mtime +${retention_days} -delete 2>/dev/null || true
 
     log_success "Cleanup complete"
