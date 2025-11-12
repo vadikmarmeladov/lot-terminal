@@ -22,13 +22,26 @@ This is an **open-source developer playground and backend system**. It does **NO
 
 ### Installation
 
-One-line installation:
+**Option 1: Homebrew (Recommended for macOS/Linux)**
+
+```bash
+# Add the tap
+brew tap vadikmarmeladov/lot
+
+# Install
+brew install lot
+
+# Start using
+lot init
+```
+
+**Option 2: Quick Install Script**
 
 ```bash
 curl -sSL https://raw.githubusercontent.com/vadikmarmeladov/lot-terminal/main/install.sh | bash
 ```
 
-Or manual installation:
+**Option 3: Manual Installation**
 
 ```bash
 # Clone the repository
@@ -38,6 +51,8 @@ cd lot-terminal
 # Run installer
 bash install.sh
 ```
+
+> **Note:** All installation methods provide the same open-source software. Homebrew is simply a convenient package manager - you're still using and can contribute to the open-source project!
 
 ### First Run
 
