@@ -11,11 +11,11 @@
 
 ## What it does
 
-- Manage your settings and logs
-- Organize hardware projects
-- Terminal-based workspace
+This is an open-source developer playground and backend system. It does not provide access to lot-systems.com or any of LOT commercial services. This tool is designed for:
 
-**Note:** Open-source tool. Does not connect to lot-systems.com.
+- **Manage your LOT settings and logs** through your personal `.env` file
+- **Platform foundation** for community-based open-source self-care hardware, such as wearable sensors and weather stations to be connected to LOT
+- **Terminal-based workspace** for advanced users. Please contribute!
 
 ## 🚀 Quick Start
 
