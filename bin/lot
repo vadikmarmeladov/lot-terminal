@@ -77,8 +77,11 @@ save_setting() {
         touch "${LOT_SETTINGS}"
     fi
 
-    # Remove existing key if present
-    sed -i "/^${key}=/d" "${LOT_SETTINGS}" 2>/dev/null || true
+    # Remove existing key if present (cross-platform compatible)
+    if grep -q "^${key}=" "${LOT_SETTINGS}" 2>/dev/null; then
+        grep -v "^${key}=" "${LOT_SETTINGS}" > "${LOT_SETTINGS}.tmp" || true
+        mv "${LOT_SETTINGS}.tmp" "${LOT_SETTINGS}"
+    fi
 
     # Append new value
     echo "${key}=${value}" >> "${LOT_SETTINGS}"
@@ -307,7 +310,7 @@ list_users() {
             local username=$(basename "$user_file" .env)
             local created=$(grep "USER_CREATED=" "$user_file" | cut -d'=' -f2)
             echo -e "  ${GREEN}•${NC} ${YELLOW}$username${NC} (created: $created)"
-            ((count++))
+            count=$((count + 1))
         fi
     done
 
@@ -526,7 +529,7 @@ list_hardware() {
             else
                 echo -e "  ${GREEN}•${NC} ${YELLOW}$project_name${NC}"
             fi
-            ((count++))
+            count=$((count + 1))
         fi
     done
 
@@ -632,7 +635,7 @@ run_doctor() {
         echo -e "  ${GREEN}✓${NC} bash found"
     else
         echo -e "  ${RED}✗${NC} bash not found"
-        ((issues++))
+        issues=$((issues + 1))
     fi
 
     # Check for text editor
@@ -647,7 +650,7 @@ run_doctor() {
         echo -e "  ${GREEN}✓${NC} Write permissions OK"
     else
         echo -e "  ${RED}✗${NC} Cannot write to ${LOT_HOME}"
-        ((issues++))
+        issues=$((issues + 1))
     fi
 
     # Check disk space
