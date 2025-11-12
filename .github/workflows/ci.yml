@@ -76,14 +76,16 @@ jobs:
       uses: ludeeus/action-shellcheck@master
       with:
         scandir: 'bin'
-        severity: warning
+        severity: error
+        ignore_paths: |
+          node_modules
 
     - name: Run ShellCheck on install.sh
       uses: ludeeus/action-shellcheck@master
       with:
         scandir: '.'
-        check_together: 'yes'
-        severity: warning
+        ignore_names: '*.md'
+        severity: error
 
   markdown-lint:
     name: Markdown Lint
