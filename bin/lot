@@ -1,0 +1,792 @@
+#!/bin/bash
+
+# LOT Terminal - Open Source Developer Playground
+# Backend system for LOT systems
+# Version: 1.0.0
+
+set -e
+
+# Configuration
+VERSION="1.0.0"
+LOT_HOME="${HOME}/.lot"
+LOT_SETTINGS="${LOT_HOME}/.env"
+LOT_LOGS_DIR="${LOT_HOME}/logs"
+LOT_USERS_DIR="${LOT_HOME}/users"
+LOT_HARDWARE_DIR="${LOT_HOME}/hardware"
+
+# Colors
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+CYAN='\033[0;36m'
+MAGENTA='\033[0;35m'
+NC='\033[0m'
+
+# Logging functions
+log_info() {
+    local timestamp=$(date '+%Y-%m-%d %H:%M:%S')
+    echo -e "${CYAN}[INFO]${NC} $1"
+    if [ -d "${LOT_LOGS_DIR}" ]; then
+        echo "[$timestamp] INFO: $1" >> "${LOT_LOGS_DIR}/lot.log"
+    fi
+}
+
+log_success() {
+    local timestamp=$(date '+%Y-%m-%d %H:%M:%S')
+    echo -e "${GREEN}[SUCCESS]${NC} $1"
+    if [ -d "${LOT_LOGS_DIR}" ]; then
+        echo "[$timestamp] SUCCESS: $1" >> "${LOT_LOGS_DIR}/lot.log"
+    fi
+}
+
+log_error() {
+    local timestamp=$(date '+%Y-%m-%d %H:%M:%S')
+    echo -e "${RED}[ERROR]${NC} $1"
+    if [ -d "${LOT_LOGS_DIR}" ]; then
+        echo "[$timestamp] ERROR: $1" >> "${LOT_LOGS_DIR}/lot.log"
+    fi
+}
+
+log_warning() {
+    local timestamp=$(date '+%Y-%m-%d %H:%M:%S')
+    echo -e "${YELLOW}[WARNING]${NC} $1"
+    if [ -d "${LOT_LOGS_DIR}" ]; then
+        echo "[$timestamp] WARNING: $1" >> "${LOT_LOGS_DIR}/lot.log"
+    fi
+}
+
+# Load settings from .env file
+load_settings() {
+    if [ -f "${LOT_SETTINGS}" ]; then
+        set -a
+        source "${LOT_SETTINGS}"
+        set +a
+        log_info "Settings loaded from ${LOT_SETTINGS}"
+    else
+        log_warning "No settings file found. Run 'lot init' to create one."
+    fi
+}
+
+# Save setting to .env file
+save_setting() {
+    local key="$1"
+    local value="$2"
+
+    if [ ! -f "${LOT_SETTINGS}" ]; then
+        touch "${LOT_SETTINGS}"
+    fi
+
+    # Remove existing key if present
+    sed -i "/^${key}=/d" "${LOT_SETTINGS}" 2>/dev/null || true
+
+    # Append new value
+    echo "${key}=${value}" >> "${LOT_SETTINGS}"
+    log_success "Setting saved: ${key}=${value}"
+}
+
+# Get setting from .env file
+get_setting() {
+    local key="$1"
+    local default="$2"
+
+    if [ -f "${LOT_SETTINGS}" ]; then
+        local value=$(grep "^${key}=" "${LOT_SETTINGS}" | cut -d'=' -f2-)
+        if [ -n "$value" ]; then
+            echo "$value"
+        else
+            echo "$default"
+        fi
+    else
+        echo "$default"
+    fi
+}
+
+# Initialize LOT terminal
+init_lot() {
+    log_info "Initializing LOT Terminal..."
+
+    # Create directory structure
+    mkdir -p "${LOT_HOME}"
+    mkdir -p "${LOT_LOGS_DIR}"
+    mkdir -p "${LOT_USERS_DIR}"
+    mkdir -p "${LOT_HARDWARE_DIR}"
+
+    # Create default settings file if it doesn't exist
+    if [ ! -f "${LOT_SETTINGS}" ]; then
+        cat > "${LOT_SETTINGS}" << 'EOF'
+# LOT Terminal Settings
+# This is your personal configuration file
+
+# User Information
+LOT_USER_NAME=developer
+LOT_USER_EMAIL=
+
+# Developer Mode
+LOT_DEV_MODE=true
+LOT_DEBUG=false
+
+# Hardware Development
+LOT_HARDWARE_ENABLED=true
+
+# Logging
+LOT_LOG_LEVEL=INFO
+LOT_LOG_RETENTION_DAYS=30
+
+# Note: This is an open-source backend/playground system
+# It does NOT provide access to lot-systems.com main site
+EOF
+        log_success "Created settings file: ${LOT_SETTINGS}"
+    else
+        log_info "Settings file already exists: ${LOT_SETTINGS}"
+    fi
+
+    # Create initial log entry
+    echo "# LOT Terminal Logs" > "${LOT_LOGS_DIR}/lot.log"
+    log_success "LOT Terminal initialized successfully!"
+
+    echo ""
+    echo -e "${CYAN}╔════════════════════════════════════════════════╗${NC}"
+    echo -e "${CYAN}║${NC}  ${GREEN}LOT Terminal - Developer Playground${NC}        ${CYAN}║${NC}"
+    echo -e "${CYAN}╚════════════════════════════════════════════════╝${NC}"
+    echo ""
+    echo -e "${YELLOW}Get started:${NC}"
+    echo "  lot help        - View all commands"
+    echo "  lot config      - Edit your settings"
+    echo "  lot hardware    - Start hardware development"
+    echo ""
+}
+
+# Show help
+show_help() {
+    cat << 'EOF'
+╔════════════════════════════════════════════════════════════════╗
+║              LOT Terminal - Developer Playground               ║
+║                   Open Source Backend System                   ║
+╚════════════════════════════════════════════════════════════════╝
+
+USAGE:
+  lot <command> [options]
+
+COMMANDS:
+  init                  Initialize LOT terminal (first time setup)
+  help                  Show this help message
+
+  Settings Management:
+    config              Edit your settings file (.env)
+    settings list       List all current settings
+    settings set <key> <value>  Set a configuration value
+    settings get <key>  Get a configuration value
+
+  User Management:
+    user create <name>  Create a new user profile
+    user list           List all user profiles
+    user edit <name>    Edit a user profile
+    user delete <name>  Delete a user profile
+
+  Logging & Analytics:
+    logs                View recent logs
+    logs tail           Tail the log file
+    logs clear          Clear old logs
+    stats               View usage statistics
+
+  Hardware Development:
+    hardware init <project>     Create new hardware project
+    hardware list               List hardware projects
+    hardware open <project>     Open hardware project
+    hardware export <project>   Export hardware project files
+
+  System:
+    version             Show version information
+    status              Show system status
+    doctor              Check system health
+    clean               Clean temporary files
+
+EXAMPLES:
+  lot init                              # First time setup
+  lot settings set LOT_USER_NAME john   # Set your username
+  lot user create alice                 # Create user profile
+  lot hardware init weather-station     # Start hardware project
+  lot logs tail                         # Watch live logs
+
+NOTE:
+  This is an open-source developer playground and backend system.
+  It does NOT provide direct access to lot-systems.com main site.
+
+For more information, visit: https://github.com/vadikmarmeladov/lot-terminal
+EOF
+}
+
+# Edit configuration
+edit_config() {
+    if [ ! -f "${LOT_SETTINGS}" ]; then
+        log_error "Settings file not found. Run 'lot init' first."
+        exit 1
+    fi
+
+    if command -v nano &> /dev/null; then
+        nano "${LOT_SETTINGS}"
+        log_success "Settings updated"
+    elif command -v vim &> /dev/null; then
+        vim "${LOT_SETTINGS}"
+        log_success "Settings updated"
+    elif command -v vi &> /dev/null; then
+        vi "${LOT_SETTINGS}"
+        log_success "Settings updated"
+    else
+        log_error "No text editor found (nano, vim, or vi required)"
+        echo "Your settings file is at: ${LOT_SETTINGS}"
+        exit 1
+    fi
+}
+
+# List all settings
+list_settings() {
+    if [ ! -f "${LOT_SETTINGS}" ]; then
+        log_error "Settings file not found. Run 'lot init' first."
+        exit 1
+    fi
+
+    echo -e "${CYAN}Current Settings:${NC}"
+    echo ""
+    grep -v '^#' "${LOT_SETTINGS}" | grep -v '^$' | while IFS='=' read -r key value; do
+        echo -e "  ${GREEN}$key${NC} = ${YELLOW}$value${NC}"
+    done
+}
+
+# Create user profile
+create_user() {
+    local username="$1"
+
+    if [ -z "$username" ]; then
+        log_error "Username required. Usage: lot user create <name>"
+        exit 1
+    fi
+
+    local user_file="${LOT_USERS_DIR}/${username}.env"
+
+    if [ -f "$user_file" ]; then
+        log_error "User '$username' already exists"
+        exit 1
+    fi
+
+    cat > "$user_file" << EOF
+# User Profile: ${username}
+# Created: $(date '+%Y-%m-%d %H:%M:%S')
+
+USER_NAME=${username}
+USER_EMAIL=
+USER_ROLE=developer
+USER_CREATED=$(date '+%Y-%m-%d')
+
+# Preferences
+PREFERRED_EDITOR=nano
+HARDWARE_PROJECTS_ENABLED=true
+
+# Custom Settings
+# Add your custom settings below
+EOF
+
+    log_success "User profile created: $username"
+    echo "Edit profile: lot user edit $username"
+}
+
+# List users
+list_users() {
+    if [ ! -d "${LOT_USERS_DIR}" ]; then
+        log_error "Users directory not found. Run 'lot init' first."
+        exit 1
+    fi
+
+    echo -e "${CYAN}User Profiles:${NC}"
+    echo ""
+
+    local count=0
+    for user_file in "${LOT_USERS_DIR}"/*.env; do
+        if [ -f "$user_file" ]; then
+            local username=$(basename "$user_file" .env)
+            local created=$(grep "USER_CREATED=" "$user_file" | cut -d'=' -f2)
+            echo -e "  ${GREEN}•${NC} ${YELLOW}$username${NC} (created: $created)"
+            ((count++))
+        fi
+    done
+
+    if [ $count -eq 0 ]; then
+        echo "  No users found. Create one with: lot user create <name>"
+    fi
+    echo ""
+    echo "Total users: $count"
+}
+
+# Edit user profile
+edit_user() {
+    local username="$1"
+
+    if [ -z "$username" ]; then
+        log_error "Username required. Usage: lot user edit <name>"
+        exit 1
+    fi
+
+    local user_file="${LOT_USERS_DIR}/${username}.env"
+
+    if [ ! -f "$user_file" ]; then
+        log_error "User '$username' not found"
+        exit 1
+    fi
+
+    if command -v nano &> /dev/null; then
+        nano "$user_file"
+    elif command -v vim &> /dev/null; then
+        vim "$user_file"
+    else
+        vi "$user_file"
+    fi
+
+    log_success "User profile updated: $username"
+}
+
+# Delete user profile
+delete_user() {
+    local username="$1"
+
+    if [ -z "$username" ]; then
+        log_error "Username required. Usage: lot user delete <name>"
+        exit 1
+    fi
+
+    local user_file="${LOT_USERS_DIR}/${username}.env"
+
+    if [ ! -f "$user_file" ]; then
+        log_error "User '$username' not found"
+        exit 1
+    fi
+
+    read -p "Delete user '$username'? (y/N) " -n 1 -r
+    echo
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        rm "$user_file"
+        log_success "User deleted: $username"
+    else
+        log_info "Cancelled"
+    fi
+}
+
+# View logs
+view_logs() {
+    if [ ! -f "${LOT_LOGS_DIR}/lot.log" ]; then
+        log_error "No logs found. Run 'lot init' first."
+        exit 1
+    fi
+
+    echo -e "${CYAN}Recent Logs (last 50 lines):${NC}"
+    echo ""
+    tail -n 50 "${LOT_LOGS_DIR}/lot.log"
+}
+
+# Tail logs
+tail_logs() {
+    if [ ! -f "${LOT_LOGS_DIR}/lot.log" ]; then
+        log_error "No logs found. Run 'lot init' first."
+        exit 1
+    fi
+
+    log_info "Tailing logs (Ctrl+C to exit)..."
+    tail -f "${LOT_LOGS_DIR}/lot.log"
+}
+
+# Clear old logs
+clear_logs() {
+    read -p "Clear all logs? (y/N) " -n 1 -r
+    echo
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        echo "# LOT Terminal Logs - Cleared on $(date)" > "${LOT_LOGS_DIR}/lot.log"
+        log_success "Logs cleared"
+    else
+        log_info "Cancelled"
+    fi
+}
+
+# Show stats
+show_stats() {
+    echo -e "${CYAN}╔════════════════════════════════════════════════╗${NC}"
+    echo -e "${CYAN}║${NC}          LOT Terminal Statistics               ${CYAN}║${NC}"
+    echo -e "${CYAN}╚════════════════════════════════════════════════╝${NC}"
+    echo ""
+
+    # User count
+    local user_count=$(ls -1 "${LOT_USERS_DIR}"/*.env 2>/dev/null | wc -l)
+    echo -e "  ${YELLOW}Users:${NC} $user_count"
+
+    # Hardware projects
+    local hw_count=$(ls -1d "${LOT_HARDWARE_DIR}"/*/ 2>/dev/null | wc -l)
+    echo -e "  ${YELLOW}Hardware Projects:${NC} $hw_count"
+
+    # Log entries
+    if [ -f "${LOT_LOGS_DIR}/lot.log" ]; then
+        local log_lines=$(wc -l < "${LOT_LOGS_DIR}/lot.log")
+        echo -e "  ${YELLOW}Log Entries:${NC} $log_lines"
+    fi
+
+    # Disk usage
+    local disk_usage=$(du -sh "${LOT_HOME}" 2>/dev/null | cut -f1)
+    echo -e "  ${YELLOW}Disk Usage:${NC} $disk_usage"
+
+    echo ""
+}
+
+# Initialize hardware project
+init_hardware() {
+    local project_name="$1"
+
+    if [ -z "$project_name" ]; then
+        log_error "Project name required. Usage: lot hardware init <project>"
+        exit 1
+    fi
+
+    local project_dir="${LOT_HARDWARE_DIR}/${project_name}"
+
+    if [ -d "$project_dir" ]; then
+        log_error "Hardware project '$project_name' already exists"
+        exit 1
+    fi
+
+    mkdir -p "$project_dir"/{firmware,schematics,pcb,docs,images}
+
+    # Create README
+    cat > "$project_dir/README.md" << EOF
+# ${project_name}
+
+Hardware project created on $(date '+%Y-%m-%d')
+
+## Directory Structure
+
+- \`firmware/\` - Embedded software/firmware code
+- \`schematics/\` - Circuit schematics
+- \`pcb/\` - PCB design files
+- \`docs/\` - Documentation
+- \`images/\` - Photos and renders
+
+## Getting Started
+
+1. Add your circuit design to \`schematics/\`
+2. Add firmware code to \`firmware/\`
+3. Document your project in this README
+
+## License
+
+Open Source - MIT License
+EOF
+
+    # Create project config
+    cat > "$project_dir/project.env" << EOF
+# Hardware Project: ${project_name}
+PROJECT_NAME=${project_name}
+PROJECT_CREATED=$(date '+%Y-%m-%d')
+PROJECT_TYPE=hardware
+PROJECT_STATUS=in_development
+
+# Hardware Specifications
+MICROCONTROLLER=
+POWER_SUPPLY=
+SENSORS=
+
+# Notes
+PROJECT_DESCRIPTION=
+EOF
+
+    log_success "Hardware project created: $project_name"
+    echo ""
+    echo -e "${YELLOW}Project location:${NC} $project_dir"
+    echo -e "${YELLOW}Next steps:${NC}"
+    echo "  1. cd $project_dir"
+    echo "  2. Add your files to the appropriate directories"
+    echo "  3. lot hardware list - to see all projects"
+}
+
+# List hardware projects
+list_hardware() {
+    if [ ! -d "${LOT_HARDWARE_DIR}" ]; then
+        log_error "Hardware directory not found. Run 'lot init' first."
+        exit 1
+    fi
+
+    echo -e "${CYAN}Hardware Projects:${NC}"
+    echo ""
+
+    local count=0
+    for project_dir in "${LOT_HARDWARE_DIR}"/*/; do
+        if [ -d "$project_dir" ]; then
+            local project_name=$(basename "$project_dir")
+            local config_file="${project_dir}/project.env"
+
+            if [ -f "$config_file" ]; then
+                local created=$(grep "PROJECT_CREATED=" "$config_file" | cut -d'=' -f2)
+                local status=$(grep "PROJECT_STATUS=" "$config_file" | cut -d'=' -f2)
+                echo -e "  ${GREEN}•${NC} ${YELLOW}$project_name${NC} [$status] (created: $created)"
+            else
+                echo -e "  ${GREEN}•${NC} ${YELLOW}$project_name${NC}"
+            fi
+            ((count++))
+        fi
+    done
+
+    if [ $count -eq 0 ]; then
+        echo "  No hardware projects found."
+        echo "  Create one with: lot hardware init <project-name>"
+    fi
+    echo ""
+    echo "Total projects: $count"
+}
+
+# Open hardware project
+open_hardware() {
+    local project_name="$1"
+
+    if [ -z "$project_name" ]; then
+        log_error "Project name required. Usage: lot hardware open <project>"
+        exit 1
+    fi
+
+    local project_dir="${LOT_HARDWARE_DIR}/${project_name}"
+
+    if [ ! -d "$project_dir" ]; then
+        log_error "Hardware project '$project_name' not found"
+        exit 1
+    fi
+
+    echo -e "${CYAN}Opening project: ${YELLOW}$project_name${NC}"
+    echo "Location: $project_dir"
+    echo ""
+
+    # Open in file manager or just cd
+    if command -v xdg-open &> /dev/null; then
+        xdg-open "$project_dir"
+    elif command -v open &> /dev/null; then
+        open "$project_dir"
+    else
+        echo "To access the project:"
+        echo "  cd $project_dir"
+    fi
+}
+
+# Show version
+show_version() {
+    echo -e "${CYAN}╔════════════════════════════════════════════════╗${NC}"
+    echo -e "${CYAN}║${NC}  ${GREEN}LOT Terminal${NC} v${VERSION}                       ${CYAN}║${NC}"
+    echo -e "${CYAN}║${NC}  Developer Playground & Backend System        ${CYAN}║${NC}"
+    echo -e "${CYAN}╚════════════════════════════════════════════════╝${NC}"
+    echo ""
+    echo "Open Source - MIT License"
+    echo "Repository: https://github.com/vadikmarmeladov/lot-terminal"
+    echo ""
+    echo "Note: This does NOT provide access to lot-systems.com"
+}
+
+# Show system status
+show_status() {
+    echo -e "${CYAN}System Status:${NC}"
+    echo ""
+
+    # Check if initialized
+    if [ -d "${LOT_HOME}" ]; then
+        echo -e "  ${GREEN}✓${NC} LOT Terminal initialized"
+    else
+        echo -e "  ${RED}✗${NC} Not initialized (run: lot init)"
+        return
+    fi
+
+    # Check settings file
+    if [ -f "${LOT_SETTINGS}" ]; then
+        echo -e "  ${GREEN}✓${NC} Settings file exists"
+    else
+        echo -e "  ${YELLOW}⚠${NC} No settings file"
+    fi
+
+    # Check logs
+    if [ -f "${LOT_LOGS_DIR}/lot.log" ]; then
+        echo -e "  ${GREEN}✓${NC} Logging enabled"
+    else
+        echo -e "  ${YELLOW}⚠${NC} No logs found"
+    fi
+
+    # Check dev mode
+    local dev_mode=$(get_setting "LOT_DEV_MODE" "false")
+    if [ "$dev_mode" = "true" ]; then
+        echo -e "  ${GREEN}✓${NC} Developer mode: ${GREEN}ENABLED${NC}"
+    else
+        echo -e "  ${YELLOW}⚠${NC} Developer mode: disabled"
+    fi
+
+    echo ""
+}
+
+# Doctor - check system health
+run_doctor() {
+    echo -e "${CYAN}Running system health check...${NC}"
+    echo ""
+
+    local issues=0
+
+    # Check bash
+    if command -v bash &> /dev/null; then
+        echo -e "  ${GREEN}✓${NC} bash found"
+    else
+        echo -e "  ${RED}✗${NC} bash not found"
+        ((issues++))
+    fi
+
+    # Check for text editor
+    if command -v nano &> /dev/null || command -v vim &> /dev/null || command -v vi &> /dev/null; then
+        echo -e "  ${GREEN}✓${NC} Text editor available"
+    else
+        echo -e "  ${YELLOW}⚠${NC} No text editor found (install nano, vim, or vi)"
+    fi
+
+    # Check directory permissions
+    if [ -w "${LOT_HOME}" ]; then
+        echo -e "  ${GREEN}✓${NC} Write permissions OK"
+    else
+        echo -e "  ${RED}✗${NC} Cannot write to ${LOT_HOME}"
+        ((issues++))
+    fi
+
+    # Check disk space
+    local available_space=$(df -h "${LOT_HOME}" | awk 'NR==2 {print $4}')
+    echo -e "  ${GREEN}✓${NC} Available disk space: $available_space"
+
+    echo ""
+    if [ $issues -eq 0 ]; then
+        echo -e "${GREEN}All checks passed!${NC}"
+    else
+        echo -e "${RED}Found $issues issue(s)${NC}"
+    fi
+}
+
+# Clean temporary files
+clean_system() {
+    log_info "Cleaning temporary files..."
+
+    # Clean old logs (older than retention period)
+    local retention_days=$(get_setting "LOT_LOG_RETENTION_DAYS" "30")
+    find "${LOT_LOGS_DIR}" -type f -name "*.log.*" -mtime +${retention_days} -delete 2>/dev/null || true
+
+    log_success "Cleanup complete"
+}
+
+# Main command router
+main() {
+    # Load settings if available
+    if [ -f "${LOT_SETTINGS}" ]; then
+        load_settings
+    fi
+
+    case "${1:-}" in
+        init)
+            init_lot
+            ;;
+        help|--help|-h)
+            show_help
+            ;;
+        version|--version|-v)
+            show_version
+            ;;
+        config)
+            edit_config
+            ;;
+        settings)
+            case "${2:-}" in
+                list)
+                    list_settings
+                    ;;
+                set)
+                    if [ -z "${3:-}" ] || [ -z "${4:-}" ]; then
+                        log_error "Usage: lot settings set <key> <value>"
+                        exit 1
+                    fi
+                    save_setting "$3" "$4"
+                    ;;
+                get)
+                    if [ -z "${3:-}" ]; then
+                        log_error "Usage: lot settings get <key>"
+                        exit 1
+                    fi
+                    get_setting "$3"
+                    ;;
+                *)
+                    log_error "Unknown settings command. Use: list, set, get"
+                    exit 1
+                    ;;
+            esac
+            ;;
+        user)
+            case "${2:-}" in
+                create)
+                    create_user "$3"
+                    ;;
+                list)
+                    list_users
+                    ;;
+                edit)
+                    edit_user "$3"
+                    ;;
+                delete)
+                    delete_user "$3"
+                    ;;
+                *)
+                    log_error "Unknown user command. Use: create, list, edit, delete"
+                    exit 1
+                    ;;
+            esac
+            ;;
+        logs)
+            case "${2:-}" in
+                tail)
+                    tail_logs
+                    ;;
+                clear)
+                    clear_logs
+                    ;;
+                *)
+                    view_logs
+                    ;;
+            esac
+            ;;
+        stats)
+            show_stats
+            ;;
+        hardware)
+            case "${2:-}" in
+                init)
+                    init_hardware "$3"
+                    ;;
+                list)
+                    list_hardware
+                    ;;
+                open)
+                    open_hardware "$3"
+                    ;;
+                *)
+                    log_error "Unknown hardware command. Use: init, list, open"
+                    exit 1
+                    ;;
+            esac
+            ;;
+        status)
+            show_status
+            ;;
+        doctor)
+            run_doctor
+            ;;
+        clean)
+            clean_system
+            ;;
+        *)
+            log_error "Unknown command: ${1:-}"
+            echo "Run 'lot help' for usage information"
+            exit 1
+            ;;
+    esac
+}
+
+# Run main function
+main "$@"

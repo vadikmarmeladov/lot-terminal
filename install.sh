@@ -115,4 +115,57 @@ fi
 chmod +x "$INSTALL_DIR/$SCRIPT_NAME"
 print_success "Made script executable"
 
-# Rest of the script remains the same...
+# Add to PATH if needed
+if [[ ":$PATH:" != *":$INSTALL_DIR:"* ]]; then
+    print_warning "Adding $INSTALL_DIR to PATH..."
+
+    # Detect shell
+    if [ -n "$BASH_VERSION" ]; then
+        SHELL_RC="$HOME/.bashrc"
+    elif [ -n "$ZSH_VERSION" ]; then
+        SHELL_RC="$HOME/.zshrc"
+    else
+        SHELL_RC="$HOME/.profile"
+    fi
+
+    # Add to PATH in shell config
+    if [ -f "$SHELL_RC" ]; then
+        echo "" >> "$SHELL_RC"
+        echo "# Added by LOT Terminal installer" >> "$SHELL_RC"
+        echo "export PATH=\"\$PATH:$INSTALL_DIR\"" >> "$SHELL_RC"
+        print_success "Added to PATH in $SHELL_RC"
+        print_warning "Run 'source $SHELL_RC' or restart your terminal"
+    fi
+fi
+
+# Run initialization
+print_status "Initializing LOT Terminal..."
+if "$INSTALL_DIR/$SCRIPT_NAME" init; then
+    print_success "Initialization complete!"
+else
+    print_warning "Initialization had some issues, but installation succeeded"
+fi
+
+# Success message
+echo ""
+echo -e "${GREEN}╔════════════════════════════════════════════════╗${NC}"
+echo -e "${GREEN}║${NC}     LOT Terminal installed successfully!      ${GREEN}║${NC}"
+echo -e "${GREEN}╚════════════════════════════════════════════════╝${NC}"
+echo ""
+echo -e "${CYAN}Quick Start:${NC}"
+echo "  lot help        - Show all commands"
+echo "  lot config      - Edit your settings"
+echo "  lot user create - Create a user profile"
+echo "  lot hardware    - Start hardware development"
+echo ""
+echo -e "${YELLOW}Developer Playground:${NC}"
+echo "  ✓ Open source backend system"
+echo "  ✓ Settings & logs via .env files"
+echo "  ✓ Hardware development tools"
+echo "  ✓ Terminal-first experience"
+echo ""
+echo -e "${BLUE}Note:${NC} This does NOT provide access to lot-systems.com"
+echo ""
+echo -e "${CYAN}Configuration:${NC} $HOME/.lot/"
+echo -e "${CYAN}Repository:${NC} https://github.com/$REPO_USER/$REPO_NAME"
+echo ""
